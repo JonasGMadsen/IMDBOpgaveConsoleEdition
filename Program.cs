@@ -21,7 +21,7 @@ class Program
 
             int option = GetOption(1, 5);
 
-
+            
             switch (option)
             {
                 case 1:
@@ -50,10 +50,11 @@ class Program
 
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
-            string query = "SELECT tconst, primaryTitle FROM Titles WHERE primaryTitle LIKE @searchTerm ORDER BY primaryTitle";
+            string query = "WildcardSearchTitles101";
             using (SqlCommand command = new SqlCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@searchTerm", "%" + searchTerm + "%");
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@pattern", "%" + searchTerm + "%");
                 connection.Open();
 
                 SqlDataReader reader = command.ExecuteReader();
@@ -137,7 +138,7 @@ class Program
 
         InsertMovieUsingStoredProcedure(titleTypeName, originalTitle, primaryTitle, isAdultBool, startYearInt, endYearInt, runTimeMinutesInt, genre);
     }
-
+    
     static void InsertMovieUsingStoredProcedure(string titleTypeName, string title, string originalTitle, bool isAdult, int startYear, int endYear, int runTimeMinutes, string genre)
     {
         int isAdultInt;
@@ -151,7 +152,7 @@ class Program
         }
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
-            using (SqlCommand command = new SqlCommand("InsertMovie", connection))
+            using (SqlCommand command = new SqlCommand("AddTitle", connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@titleTypeName", titleTypeName);
