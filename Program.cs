@@ -82,15 +82,16 @@ class Program
 
     static void SearchPerson()
     {
-        Console.WriteLine("Enter the person's name (use % as a wildcard):");
+        Console.WriteLine("Enter the person's name: ");
         string searchTerm = Console.ReadLine();
 
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
-            string query = "SELECT primaryName FROM Names WHERE primaryName LIKE @searchTerm ORDER BY primaryName";
+            string query = "WildcardSearchNames101";
             using (SqlCommand command = new SqlCommand(query, connection))
             {
-                command.Parameters.AddWithValue("@searchTerm", searchTerm + "%");
+                command.CommandType = CommandType.StoredProcedure;
+                command.Parameters.AddWithValue("@pattern", "%" + searchTerm + "%");
                 connection.Open();
 
                 SqlDataReader reader = command.ExecuteReader();
@@ -166,16 +167,9 @@ class Program
 
                 connection.Open();
 
-                int rowsAffected = command.ExecuteNonQuery();
-                if (rowsAffected > 0)
-                {
-                    Console.WriteLine("Movie added!.");
-                    Console.ReadKey();
-                }
-                else
-                {
-                    Console.WriteLine("Failed to add movie.");
-                }
+                command.ExecuteNonQuery();
+                connection.Close();
+
 
             }
         }
@@ -210,13 +204,24 @@ class Program
             }
         }
 
+        Console.WriteLine("Primary Profession. Write between 1 or 3 professions (Split the professions using ',')");
+        string primaryProfession = Console.ReadLine();
+
+        Console.WriteLine("Know for titles");
+        string knownForTitles = Console.ReadLine();
+
+
         using (SqlConnection connection = new SqlConnection(connectionString))
         {
-            using (SqlCommand command = new SqlCommand("AddPerson", connection))
+            using (SqlCommand command = new SqlCommand("AddName", connection))
             {
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@primaryName", name);
                 command.Parameters.AddWithValue("@birthYear", birthYear);
+                command.Parameters.AddWithValue("@primaryProfession", primaryProfession);
+                command.Parameters.AddWithValue("@knownForTitles", knownForTitles);
+
+
 
                 if (deathYear.HasValue)
                 {
@@ -228,17 +233,7 @@ class Program
                 }
 
                 connection.Open();
-                int rowsAffected = command.ExecuteNonQuery();
-
-                if (rowsAffected > 0)
-                {
-                    Console.WriteLine("Person added!.");
-                    Console.ReadKey();
-                }
-                else
-                {
-                    Console.WriteLine("Something went wrong when adding person.");
-                }
+                command.ExecuteNonQuery();           
             }
         }
         Thread.Sleep(800);
@@ -280,15 +275,8 @@ class Program
                         updateCommand.Parameters.AddWithValue("@newTitle", newTitle);
                         updateCommand.Parameters.AddWithValue("@tconst", tconst);
 
-                        int rowsAffected = updateCommand.ExecuteNonQuery();
-                        if (rowsAffected > 0)
-                        {
-                            Console.WriteLine("Movie title updated successfully!.");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Failed to update movie title.");
-                        }
+                        updateCommand.ExecuteNonQuery();
+
                     }
                 }
                 else
