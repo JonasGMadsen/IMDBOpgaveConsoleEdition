@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 class Program
 {
-    static string connectionString = "Server=LAPTOP-83G828H4;Database=IMDB;Trusted_Connection=True;TrustServerCertificate=true";
+    static string connectionString = "Server=LAPTOP-83G828H4;Database=IMDB2;Trusted_Connection=True;TrustServerCertificate=true";
 
     static void Main(string[] args)
     {
@@ -17,7 +17,7 @@ class Program
             Console.WriteLine("2. Search person");
             Console.WriteLine("3. Add movie");
             Console.WriteLine("4. Add person");
-            Console.WriteLine("5. Update/Delete movie info");
+            Console.WriteLine("5. Update movie info");
 
             int option = GetOption(1, 5);
 
@@ -45,7 +45,7 @@ class Program
 
     static void SearchMovieByTitle()
     {
-        Console.WriteLine("Enter movie title (use % as a wildcard):");
+        Console.WriteLine("Enter movie title:");
         string searchTerm = Console.ReadLine();
 
         using (SqlConnection connection = new SqlConnection(connectionString))
@@ -53,8 +53,10 @@ class Program
             string query = "WildcardSearchTitles101";
             using (SqlCommand command = new SqlCommand(query, connection))
             {
+                command.CommandTimeout = 120;
                 command.CommandType = CommandType.StoredProcedure;
                 command.Parameters.AddWithValue("@pattern", "%" + searchTerm + "%");
+                
                 connection.Open();
 
                 SqlDataReader reader = command.ExecuteReader();
